@@ -23,7 +23,7 @@ const isActive = (path: string) => {
 };
 ---
 
-<header>
+<header id="main-header" class="fixed top-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-sm border-b border-border transition-transform duration-300 ease-in-out">
   <a
     id="skip-to-content"
     href="#main-content"
@@ -163,6 +163,49 @@ const isActive = (path: string) => {
 
   toggleNav();
 
+  // Smart navbar functionality
+  function initSmartNavbar() {
+    const header = document.querySelector("#main-header");
+    if (!header) return;
+
+    let lastScrollY = window.scrollY;
+    let isScrolling = false;
+
+    function handleScroll() {
+      const currentScrollY = window.scrollY;
+      const scrollDifference = currentScrollY - lastScrollY;
+
+      // Always show header when at the top of the page
+      if (currentScrollY < 100) {
+        header.style.transform = "translateY(0)";
+      }
+      // Hide header when scrolling down (and not at top)
+      else if (scrollDifference > 0 && currentScrollY > 100) {
+        header.style.transform = "translateY(-100%)";
+      }
+      // Show header when scrolling up
+      else if (scrollDifference < 0) {
+        header.style.transform = "translateY(0)";
+      }
+
+      lastScrollY = currentScrollY;
+      isScrolling = false;
+    }
+
+    // Throttle scroll events for better performance
+    window.addEventListener("scroll", () => {
+      if (!isScrolling) {
+        window.requestAnimationFrame(handleScroll);
+        isScrolling = true;
+      }
+    });
+  }
+
+  initSmartNavbar();
+
   // Runs on view transitions navigation
-  document.addEventListener("astro:after-swap", toggleNav);
+  document.addEventListener("astro:after-swap", () => {
+    toggleNav();
+    initSmartNavbar();
+  });
 </script>

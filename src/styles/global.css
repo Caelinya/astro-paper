@@ -38,6 +38,7 @@ html[data-theme="dark"] {
   }
   body {
     @apply flex min-h-svh flex-col bg-background font-mono text-foreground selection:bg-accent/75 selection:text-background;
+    padding-top: 80px; /* Add space for fixed header */
   }
   a,
   button {
@@ -60,5 +61,5 @@ html[data-theme="dark"] {
 /* Source: https://piccalil.li/blog/a-more-modern-css-reset/ */
 /* Anything that has been anchored to should have extra scroll margin */
 :target {
-  scroll-margin-block: 1rem;
+  scroll-margin-block: 6rem;
 }
