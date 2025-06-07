@@ -26,8 +26,10 @@
   }
 
   /* ===== Code Blocks & Syntax Highlighting ===== */
-  pre:has(code) {
+  .prose pre:has(code) {
     @apply border border-border;
+    font-family: 'Maple-Mono', 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace !important;
+    font-size: 16px !important;
   }
 
   .prose code,
@@ -35,13 +37,27 @@
     @apply break-words;
   }
 
+  .prose code {
+    font-family: 'Maple-Mono', 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace !important;
+    font-size: 16px !important;
+  }
+
+  .prose pre code {
+    font-family: 'Maple-Mono', 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace !important;
+    font-size: 16px !important;
+  }
+
   .prose table code {
     /* add line breaks whenever necessary for codes under table */
     @apply break-all sm:break-normal;
+    font-family: 'Maple-Mono', 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace !important;
+    font-size: 16px !important;
   }
 
   pre > code {
     white-space: pre;
+    font-family: 'Maple-Mono', 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace !important;
+    font-size: 16px !important;
   }
 
   /* Apply Dark Theme (if multi-theme specified) */
@@ -52,5 +68,20 @@
     font-style: var(--shiki-dark-font-style) !important;
     font-weight: var(--shiki-dark-font-weight) !important;
     text-decoration: var(--shiki-dark-text-decoration) !important;
+    font-family: 'Maple-Mono', 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace !important;
+    font-size: 16px !important;
+  }
+
+  /* Apply Light Theme (if multi-theme specified) */
+  html[data-theme="light"] pre:has(code),
+  html[data-theme="light"] pre:has(code) span {
+    font-family: 'Maple-Mono', 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace !important;
+    font-size: 16px !important;
+  }
+
+  /* Apply font to all code spans regardless of theme */
+  pre code span {
+    font-family: 'Maple-Mono', 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace !important;
+    font-size: 16px !important;
   }
 }

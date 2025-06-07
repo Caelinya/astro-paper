@@ -1,23 +1,22 @@
 @import "tailwindcss";
 @import "./typography.css";
-
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 :root,
 html[data-theme="light"] {
-  --background: #fdfdfd;
-  --foreground: #282728;
-  --accent: #006cac;
-  --muted: #e6e6e6;
-  --border: #ece9e9;
+  --background: #F0F2F5;
+  --foreground: #1F2937;
+  --accent: #007BFF;
+  --muted: #E5E7EB;
+  --border: #D1D5DB;
 }
 
 html[data-theme="dark"] {
-  --background: #212737;
-  --foreground: #eaedf3;
-  --accent: #ff6b01;
-  --muted: #343f60bf;
-  --border: #ab4b08;
+  --background: #1A1B26;
+  --foreground: #C0CAF5;
+  --accent: #00E5FF;
+  --muted: #414868;
+  --border: #2A2F4F;
 }
 
 @theme inline {
