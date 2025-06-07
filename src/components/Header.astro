@@ -165,26 +165,29 @@ const isActive = (path: string) => {
 
   // Smart navbar functionality
   function initSmartNavbar() {
-    const header = document.querySelector("#main-header");
+    const header = document.querySelector("#main-header") as HTMLElement;
     if (!header) return;
 
     let lastScrollY = window.scrollY;
     let isScrolling = false;
 
+    // Ensure header is visible initially
+    header.style.transform = "translateY(0)";
+
     function handleScroll() {
       const currentScrollY = window.scrollY;
       const scrollDifference = currentScrollY - lastScrollY;
 
-      // Always show header when at the top of the page
-      if (currentScrollY < 100) {
+      // Always show header when at the top of the page (within 1000px)
+      if (currentScrollY <= 1000) {
         header.style.transform = "translateY(0)";
       }
       // Hide header when scrolling down (and not at top)
-      else if (scrollDifference > 0 && currentScrollY > 100) {
+      else if (scrollDifference > 0 && currentScrollY > 1000) {
         header.style.transform = "translateY(-100%)";
       }
-      // Show header when scrolling up
-      else if (scrollDifference < 0) {
+      // Show header when scrolling up (regardless of position, but not at top)
+      else if (scrollDifference < 0 && currentScrollY > 1000) {
         header.style.transform = "translateY(0)";
       }
 
