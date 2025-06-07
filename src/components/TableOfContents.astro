@@ -84,9 +84,14 @@
           element: heading
         });
 
+        // Clean the text by removing trailing # symbols and extra whitespace
+        const cleanText = heading.textContent?.trim()
+          .replace(/#+\s*$/, '')  // Remove trailing # symbols and whitespace
+          .trim() || '';
+
         return {
           id: heading.id,
-          text: heading.textContent?.trim() || '',
+          text: cleanText,
           level: parseInt(heading.tagName.charAt(1)),
           element: heading
         };
