@@ -70,7 +70,16 @@ etc...
         `conic-gradient(var(--accent), var(--accent) ${scrollPercent}%, transparent ${scrollPercent}%)`
       );
 
-      const isVisible = scrollTop / scrollTotal > 0.3;
+      // Show button if EITHER condition is met:
+      // 1. Scrolled more than 1000px (absolute distance)
+      // 2. Scrolled more than 20% of total page height (relative percentage)
+      const minScrollDistance = 1000; // pixels
+      const minScrollPercentage = 0.2; // 20%
+
+      const hasScrolledEnoughDistance = scrollTop >= minScrollDistance;
+      const hasScrolledEnoughPercentage = scrollTop / scrollTotal >= minScrollPercentage;
+
+      const isVisible = hasScrolledEnoughDistance || hasScrolledEnoughPercentage;
 
       if (isVisible !== lastVisible) {
         btnContainer.classList.toggle("opacity-100", isVisible);

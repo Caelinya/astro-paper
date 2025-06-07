@@ -1,0 +1,373 @@
+---
+// TableOfContents component for desktop article navigation
+---
+
+<div
+  id="table-of-contents"
+  class="hidden xl:block fixed z-30 max-w-[250px] max-h-[60vh] bg-background/95 backdrop-blur-sm border border-border rounded-lg overflow-hidden"
+  style="left: calc((100vw - 768px) / 2 - 300px); top: 50%; transform: translateY(-50%);"
+>
+  <div class="relative">
+    <!-- Top gradient mask -->
+    <div class="absolute top-0 left-0 right-0 h-4 bg-gradient-to-b from-background/95 to-transparent pointer-events-none z-10"></div>
+    
+    <!-- TOC Content -->
+    <div id="toc-content" class="p-4 overflow-y-auto max-h-[60vh] scrollbar-hide">
+      <h3 class="text-sm font-semibold text-foreground mb-3 opacity-75">Contents</h3>
+      <nav id="toc-nav" class="space-y-1">
+        <!-- TOC items will be dynamically inserted here -->
+      </nav>
+    </div>
+    
+    <!-- Bottom gradient mask -->
+    <div class="absolute bottom-0 left-0 right-0 h-4 bg-gradient-to-t from-background/95 to-transparent pointer-events-none z-10"></div>
+  </div>
+</div>
+
+<script>
+  interface HeadingData {
+    id: string;
+    text: string;
+    level: number;
+    element: HTMLElement;
+  }
+
+  function initTableOfContents() {
+    const tocContainer = document.querySelector("#table-of-contents") as HTMLElement;
+    const tocNav = document.querySelector("#toc-nav") as HTMLElement;
+    const tocContent = document.querySelector("#toc-content") as HTMLElement;
+    
+    if (!tocContainer || !tocNav || !tocContent) return;
+
+    // Extract headings from the article content
+    function extractHeadings(): HeadingData[] {
+      // Only look for headings inside the article element, excluding the main title
+      const articleContent = document.querySelector("#article");
+      if (!articleContent) return [];
+
+      const headingSelectors = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+      const allHeadings = Array.from(articleContent.querySelectorAll(headingSelectors.join(', '))) as HTMLElement[];
+
+      if (allHeadings.length === 0) return [];
+
+      // Find the minimum heading level (e.g., if we have h2, h3, h4, min level is 2)
+      const levels = allHeadings.map(h => parseInt(h.tagName.charAt(1)));
+      const minLevel = Math.min(...levels);
+
+      // Only include headings within 3 consecutive levels starting from minLevel
+      const maxLevel = minLevel + 2;
+      const filteredHeadings = allHeadings.filter(h => {
+        const level = parseInt(h.tagName.charAt(1));
+        return level >= minLevel && level <= maxLevel;
+      });
+
+      // Generate IDs for headings that don't have them
+      return filteredHeadings.map((heading, index) => {
+        if (!heading.id) {
+          // Create a more robust ID generation that's CSS selector safe
+          const cleanText = heading.textContent?.toLowerCase()
+            .replace(/\s+/g, '-')           // Replace spaces with hyphens
+            .replace(/[^\w\u4e00-\u9fff-]/g, '') // Keep only word chars, Chinese chars, and hyphens
+            .replace(/^-+|-+$/g, '')        // Remove leading/trailing hyphens
+            .replace(/-+/g, '-')            // Replace multiple hyphens with single
+            || 'untitled';
+
+          // Ensure ID starts with a letter (CSS requirement)
+          const safeId = /^[a-zA-Z]/.test(cleanText) ? cleanText : `h-${cleanText}`;
+          heading.id = `heading-${index}-${safeId}`;
+        }
+
+        console.log('Generated heading:', {
+          id: heading.id,
+          text: heading.textContent?.trim(),
+          level: parseInt(heading.tagName.charAt(1)),
+          element: heading
+        });
+
+        return {
+          id: heading.id,
+          text: heading.textContent?.trim() || '',
+          level: parseInt(heading.tagName.charAt(1)),
+          element: heading
+        };
+      });
+    }
+
+    // Generate TOC HTML
+    function generateTOCHTML(headings: HeadingData[], minLevel: number): string {
+      return headings.map(heading => {
+        const indentLevel = heading.level - minLevel;
+        const marginLeft = indentLevel * 16; // 16px per level
+        
+        return `
+          <a 
+            href="#${heading.id}" 
+            class="toc-link block py-1 text-sm text-foreground/80 hover:text-accent transition-colors duration-200 leading-relaxed"
+            style="margin-left: ${marginLeft}px"
+            data-heading-id="${heading.id}"
+          >
+            ${heading.text}
+          </a>
+        `;
+      }).join('');
+    }
+
+    // Track current heading based on scroll position
+    let currentActiveId = '';
+    let isScrolling = false;
+    let tocLinks: HTMLElement[] = [];
+
+    function updateActiveHeading() {
+      // Only look for headings inside the article element
+      const headings = Array.from(document.querySelectorAll('#article h1, #article h2, #article h3, #article h4, #article h5, #article h6')) as HTMLElement[];
+      if (headings.length === 0) return;
+
+      const scrollTop = window.scrollY;
+      const headerHeight = 100; // Account for fixed header
+      const scrollPosition = scrollTop + headerHeight + 50; // Add some offset for better UX
+
+      // Find the current heading and next heading
+      let currentHeadingIndex = 0;
+      let nextHeadingIndex = 1;
+
+      for (let i = 0; i < headings.length; i++) {
+        if (headings[i].offsetTop <= scrollPosition) {
+          currentHeadingIndex = i;
+          nextHeadingIndex = Math.min(i + 1, headings.length - 1);
+        } else {
+          break;
+        }
+      }
+
+      const currentHeading = headings[currentHeadingIndex];
+      const nextHeading = headings[nextHeadingIndex];
+      const newActiveId = currentHeading.id;
+
+      // Calculate progress between current and next heading
+      let progress = 0;
+      if (currentHeadingIndex < headings.length - 1) {
+        const currentTop = currentHeading.offsetTop;
+        const nextTop = nextHeading.offsetTop;
+        const sectionHeight = nextTop - currentTop;
+        const scrollInSection = scrollPosition - currentTop;
+        progress = Math.max(0, Math.min(1, scrollInSection / sectionHeight));
+      }
+
+      // Update active state if changed
+      if (newActiveId !== currentActiveId) {
+        // Remove previous active state
+        const prevActive = tocNav.querySelector('.toc-link.text-accent.font-medium');
+        if (prevActive) {
+          prevActive.classList.remove('text-accent', 'font-medium');
+          prevActive.classList.add('text-foreground/80');
+        }
+
+        // Add new active state
+        const newActive = tocNav.querySelector(`[data-heading-id="${newActiveId}"]`);
+        if (newActive) {
+          newActive.classList.remove('text-foreground/80');
+          newActive.classList.add('text-accent', 'font-medium');
+        }
+
+        currentActiveId = newActiveId;
+      }
+
+      // Smooth proportional scrolling of TOC
+      updateTOCScroll(currentHeadingIndex, nextHeadingIndex, progress);
+    }
+
+    function updateTOCScroll(currentIndex: number, nextIndex: number, progress: number) {
+      if (tocLinks.length === 0) {
+        tocLinks = Array.from(tocNav.querySelectorAll('.toc-link')) as HTMLElement[];
+      }
+
+      if (tocLinks.length === 0) return;
+
+      const currentLink = tocLinks[currentIndex];
+      const nextLink = tocLinks[nextIndex];
+
+      if (!currentLink) return;
+
+      // Calculate the target scroll position
+      const tocRect = tocContent.getBoundingClientRect();
+      const tocCenter = tocRect.height / 2;
+
+      // Get current link position relative to TOC container
+      const currentLinkRect = currentLink.getBoundingClientRect();
+      const currentLinkTop = currentLinkRect.top - tocRect.top + tocContent.scrollTop;
+
+      let targetScrollTop = currentLinkTop - tocCenter + currentLinkRect.height / 2;
+
+      // If there's a next link, interpolate between current and next positions
+      if (nextLink && currentIndex !== nextIndex) {
+        const nextLinkRect = nextLink.getBoundingClientRect();
+        const nextLinkTop = nextLinkRect.top - tocRect.top + tocContent.scrollTop;
+
+        // Interpolate between current and next positions based on progress
+        targetScrollTop = currentLinkTop - tocCenter + currentLinkRect.height / 2 +
+                         (nextLinkTop - currentLinkTop) * progress;
+      }
+
+      // Apply the scroll position smoothly
+      const currentScrollTop = tocContent.scrollTop;
+      const scrollDiff = Math.abs(targetScrollTop - currentScrollTop);
+
+      // Only update if the difference is significant
+      if (scrollDiff > 1) {
+        tocContent.scrollTo({
+          top: targetScrollTop,
+          behavior: 'auto' // Use auto for smooth real-time updates
+        });
+      }
+    }
+
+    // Handle smooth scrolling when clicking TOC links
+    function handleTOCClick(event: Event) {
+      console.log('Click event triggered:', event.target);
+
+      // Find the closest anchor element (in case of event bubbling)
+      const target = (event.target as HTMLElement).closest('a.toc-link') as HTMLAnchorElement;
+
+      if (!target) {
+        console.log('No target found');
+        return;
+      }
+
+      event.preventDefault();
+      const href = target.getAttribute('href');
+      const headingId = target.getAttribute('data-heading-id');
+
+      console.log('TOC click details:', {
+        target,
+        href,
+        headingId,
+        targetText: target.textContent?.trim()
+      });
+
+      if (href && href.startsWith('#')) {
+        const targetId = href.substring(1);
+
+        // Use getElementById instead of querySelector to avoid CSS selector issues
+        // getElementById is more reliable for IDs with special characters
+        let targetElement = null;
+
+        try {
+          // Try querySelector first (works for simple IDs)
+          targetElement = document.querySelector(href);
+        } catch (e) {
+          console.log('querySelector failed, using getElementById:', (e as Error).message);
+        }
+
+        // Always try getElementById as fallback (more reliable)
+        const targetById = document.getElementById(targetId);
+
+        console.log('Element search results:', {
+          href,
+          targetId,
+          targetElement,
+          targetById,
+          finalChoice: targetById || targetElement
+        });
+
+        const finalTarget = targetById || targetElement;
+
+        if (finalTarget) {
+          const headerHeight = 100; // Account for fixed header
+          const targetTop = (finalTarget as HTMLElement).offsetTop - headerHeight;
+
+          console.log('Scrolling to:', {
+            element: finalTarget,
+            offsetTop: (finalTarget as HTMLElement).offsetTop,
+            targetTop,
+            currentScroll: window.scrollY
+          });
+
+          window.scrollTo({
+            top: targetTop,
+            behavior: 'smooth'
+          });
+        } else {
+          console.error('Target element not found for href:', href);
+          // Fallback: try to find by data-heading-id
+          if (headingId) {
+            const fallbackElement = document.getElementById(headingId);
+            console.log('Fallback element:', fallbackElement);
+            if (fallbackElement) {
+              const headerHeight = 100;
+              const targetTop = fallbackElement.offsetTop - headerHeight;
+              window.scrollTo({
+                top: targetTop,
+                behavior: 'smooth'
+              });
+            }
+          }
+        }
+      }
+    }
+
+    // Initialize the TOC
+    const headings = extractHeadings();
+    
+    if (headings.length === 0) {
+      // Hide TOC if no headings found
+      tocContainer.style.display = 'none';
+      return;
+    }
+
+    const minLevel = Math.min(...headings.map(h => h.level));
+    tocNav.innerHTML = generateTOCHTML(headings, minLevel);
+
+    // Add click event listeners to TOC links
+    tocNav.addEventListener('click', handleTOCClick);
+
+    // Set up scroll tracking with throttling
+    function handleScroll() {
+      if (!isScrolling) {
+        requestAnimationFrame(() => {
+          updateActiveHeading();
+          isScrolling = false;
+        });
+        isScrolling = true;
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll);
+    
+    // Initial active heading update
+    updateActiveHeading();
+
+    // Cleanup function for view transitions
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }
+
+  // Initialize on page load
+  let cleanup: (() => void) | undefined;
+  
+  function init() {
+    cleanup?.(); // Clean up previous instance
+    cleanup = initTableOfContents();
+  }
+
+  init();
+
+  // Reinitialize on view transitions
+  document.addEventListener("astro:after-swap", init);
+</script>
+
+<style>
+  /* Hide scrollbars but keep scroll functionality */
+  .scrollbar-hide {
+    /* Firefox */
+    scrollbar-width: none;
+    /* Safari and Chrome */
+    -ms-overflow-style: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+</style>
+
+
