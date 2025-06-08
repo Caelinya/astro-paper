@@ -1,0 +1,182 @@
+---
+// src/components/ModalContainer.astro
+export interface Props {
+  title?: string;
+  id?: string; // Added id to be targetable by script
+}
+
+const { title, id } = Astro.props;
+---
+
+<modal-container-component>
+  {/* The id from props is passed to the div.modal-overlay */}
+  <div class="modal-overlay" {id} role="dialog" aria-modal="true" aria-labelledby="modal-title" hidden>
+    <div class="modal-content">
+      <header class="modal-header">
+        {title && <h2 id="modal-title" class="modal-title">{title}</h2>}
+        <button class="modal-close-btn" aria-label="关闭模态框" title="关闭">
+          &times; {/* HTML entity for a multiplication sign, often used as a close icon */}
+        </button>
+      </header>
+      <main class="modal-body">
+        <slot /> {/* Content will be injected here */}
+      </main>
+    </div>
+  </div>
+</modal-container-component>
+
+<script>
+  // Manages modal closing behavior
+  class ModalContainer extends HTMLElement {
+    constructor() {
+      super(); // Always call super first in constructor
+
+      // Query for elements *within* this custom element instance.
+      // If using Shadow DOM, this would be this.shadowRoot.querySelector(...)
+      // For light DOM (as is typical with Astro unless explicitly using Shadow DOM), direct querying works.
+      const closeButton = this.querySelector('.modal-close-btn');
+      const overlay = this.querySelector('.modal-overlay');
+
+
+      if (closeButton) {
+        closeButton.addEventListener('click', () => {
+          this.dispatchEvent(new CustomEvent('close-modal', { bubbles: true, composed: true }));
+        });
+      }
+
+      // Optional: Close on overlay click
+      if (overlay) {
+        overlay.addEventListener('click', (event) => {
+          if (event.target === overlay) { // Check if the click is on the overlay itself
+            this.dispatchEvent(new CustomEvent('close-modal', { bubbles: true, composed: true }));
+          }
+        });
+      }
+    }
+
+    // Optional: Close on Escape key press
+    connectedCallback() {
+      // Check if the modal is actually part of the document and visible
+      if (this.closest('body')) { // Or a more specific check if it's truly "open"
+          document.addEventListener('keydown', this.handleEscKey);
+      }
+    }
+
+    disconnectedCallback() {
+      document.removeEventListener('keydown', this.handleEscKey);
+    }
+
+    handleEscKey = (event) => {
+      if (event.key === 'Escape') {
+        // Check if this modal's overlay is present in the DOM.
+        // This is a way to infer if it's "active" from the custom element's perspective.
+        if (this.querySelector('.modal-overlay')) {
+             this.dispatchEvent(new CustomEvent('close-modal', { bubbles: true, composed: true }));
+        }
+      }
+    }
+  }
+
+  // Define the custom element if it hasn't been defined yet
+  if (!customElements.get('modal-container-component')) {
+    customElements.define('modal-container-component', ModalContainer);
+  }
+
+  // For Astro, scripts in .astro files are processed and run.
+  // If this component is dynamically added/removed or navigates client-side,
+  // re-initialization logic might be needed, often tied to 'astro:page-load'.
+  // However, the custom element definition itself should make instances behave correctly
+  // when they are added to the DOM.
+  // The previous complex 'astro:page-load' re-initialization might be overly aggressive
+  // if the custom element's connectedCallback/disconnectedCallback handle listeners correctly.
+  // Let's simplify and rely on the custom element lifecycle.
+  // If issues arise with client-side navigation, the more complex re-binding can be revisited.
+
+</script>
+
+<style>
+/* Ensure the custom element itself doesn't interfere with layout if it's just a wrapper */
+:host(modal-container-component) { /* Targeting the custom element itself */
+  display: contents; /* Makes the custom element not generate a box */
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 1rem; /* Add some padding for smaller screens */
+}
+
+.modal-content {
+  background-color: var(--theme-bg, white);
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  width: 90%;
+  max-width: 800px; /* Default max-width, can be adjusted */
+  max-height: 90vh; /* Limit height and allow scrolling for content */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Needed for child flex scroll */
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--theme-border, #eee);
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--theme-text, #333);
+  margin: 0;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 1.75rem;
+  font-weight: bold;
+  line-height: 1;
+  color: var(--theme-text-light, #aaa);
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+}
+.modal-close-btn:hover,
+.modal-close-btn:focus {
+  color: var(--theme-accent, red);
+  outline: none;
+}
+
+.modal-body {
+  overflow-y: auto; /* Allows content within the body to scroll if it's too long */
+  /* Add some padding if scrollbar is too close to content edge */
+  /* padding-right: 0.5rem; */
+  /* margin-right: -0.5rem; */ /* If using padding-right to offset scrollbar */
+}
+
+/* Styling for small screens */
+@media (max-width: 600px) {
+  .modal-content {
+    width: 95%;
+    padding: 1rem;
+  }
+  .modal-title {
+    font-size: 1.1rem;
+  }
+  .modal-close-btn {
+    font-size: 1.5rem;
+  }
+}
+</style>

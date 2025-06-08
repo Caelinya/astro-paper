@@ -1,0 +1,181 @@
+---
+// src/components/CodeViewer.astro
+export interface File {
+  name: string;
+  content: string;
+  lang: string; // 用于代码高亮的语言标识，例如 'python', 'json'
+}
+
+export interface Props {
+  files: File[];
+}
+
+const { files } = Astro.props;
+const defaultOpenFile = files[0]?.name || '';
+---
+
+<div class="code-viewer">
+  <div class="tabs" role="tablist">
+    {files.map((file, index) => (
+      <button
+        class:list={["tab-button", { active: file.name === defaultOpenFile }]}
+        data-filename={file.name}
+        aria-selected={file.name === defaultOpenFile}
+        role="tab"
+        id={`tab-${file.name.replace(/\./g, '-')}`}
+        aria-controls={`panel-${file.name.replace(/\./g, '-')}`}
+        tabindex={file.name === defaultOpenFile ? 0 : -1}
+      >
+        {file.name}
+      </button>
+    ))}
+  </div>
+  <div class="code-panels">
+    {files.map((file, index) => (
+      <div
+        class:list={["code-panel", { active: file.name === defaultOpenFile }]}
+        id={`panel-${file.name.replace(/\./g, '-')}`}
+        role="tabpanel"
+        aria-labelledby={`tab-${file.name.replace(/\./g, '-')}`}
+        hidden={file.name !== defaultOpenFile}
+      >
+        <pre class={`language-${file.lang}`}><code class={`language-${file.lang}`}>{file.content}</code></pre>
+      </div>
+    ))}
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const codeViewer = document.querySelector('.code-viewer');
+    if (!codeViewer) return;
+
+    const tabButtons = codeViewer.querySelectorAll('.tab-button');
+    const codePanels = codeViewer.querySelectorAll('.code-panel');
+
+    tabButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const filename = button.dataset.filename;
+
+        // Update tab buttons
+        tabButtons.forEach(btn => {
+          const isActive = btn.dataset.filename === filename;
+          btn.classList.toggle('active', isActive);
+          btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+          btn.setAttribute('tabindex', isActive ? '0' : -1);
+        });
+
+        // Update code panels
+        codePanels.forEach(panel => {
+          const panelId = `panel-${filename.replace(/\./g, '-')}`;
+          const isActive = panel.id === panelId;
+          panel.classList.toggle('active', isActive);
+          panel.hidden = !isActive;
+        });
+
+        // Focus the clicked tab
+        button.focus();
+      });
+
+      // Keyboard navigation
+      button.addEventListener('keydown', (event) => {
+        const key = event.key;
+        const currentTab = event.target;
+        const tabs = Array.from(tabButtons);
+        const currentIndex = tabs.indexOf(currentTab);
+        let nextIndex;
+
+        if (key === 'ArrowRight') {
+          nextIndex = (currentIndex + 1) % tabs.length;
+        } else if (key === 'ArrowLeft') {
+          nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+        } else if (key === 'Home') {
+          nextIndex = 0;
+        } else if (key === 'End') {
+          nextIndex = tabs.length - 1;
+        }
+
+        if (nextIndex !== undefined) {
+          event.preventDefault(); // Prevent page scrolling
+          tabs[nextIndex].focus();
+          tabs[nextIndex].click(); // Simulate click to activate tab
+        }
+      });
+    });
+  });
+</script>
+
+<style>
+/* src/components/CodeViewer.astro <style> */
+.code-viewer {
+  border: 1px solid var(--theme-border);
+  border-radius: 0.5rem;
+  margin-block: 1.5em; /* 与其他 <pre> 元素的外边距保持一致 */
+  box-shadow: var(--theme-shadow);
+  background-color: var(--theme-code-bg); /* 使用主题定义的背景色 */
+  overflow: hidden; /* 确保子元素的圆角生效 */
+}
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--theme-border);
+  background-color: var(--theme-code-tabs-bg, var(--theme-bg)); /* 允许主题覆盖或使用默认背景 */
+  padding: 0.5rem 0.5rem 0;
+  overflow-x: auto; /* 如果选项卡过多，允许水平滚动 */
+}
+
+.tab-button {
+  padding: 0.65rem 1rem;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--theme-text-light);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px; /* 使按钮的下边框与 .tabs 的下边框重合 */
+  transition: color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+  white-space: nowrap; /* 防止文件名过长时换行 */
+  border-top-left-radius: 0.375rem; /* 轻微圆角 */
+  border-top-right-radius: 0.375rem;
+}
+
+.tab-button:hover,
+.tab-button:focus-visible {
+  color: var(--theme-accent);
+  outline: none;
+}
+
+.tab-button.active {
+  color: var(--theme-text);
+  font-weight: 600;
+  border-bottom-color: var(--theme-accent);
+  background-color: var(--theme-code-bg); /* 活动选项卡背景与代码区一致 */
+}
+
+.code-panels {
+  padding: 0; /* Astro 的 pre 标签通常带有自己的 padding */
+}
+
+.code-panel {
+  /* display: none; 由 hidden 属性控制 */
+}
+
+.code-panel.active {
+  /* display: block; 由 hidden 属性控制 */
+}
+
+/* 确保 pre 和 code 标签继承 CodeViewer 的背景色，并适应其布局 */
+.code-panel pre[class*="language-"] {
+  margin: 0; /* 移除 pre 标签的默认外边距 */
+  border-radius: 0; /* 移除 pre 标签可能带有的圆角，由父容器控制 */
+  background-color: inherit !important; /* 强制继承父容器背景色 */
+  padding: 1rem; /* 统一内边距 */
+}
+
+.code-panel code[class*="language-"] {
+  font-family: var(--font-mono); /* 使用主题定义的等宽字体 */
+  font-size: 0.9em;
+  line-height: 1.6;
+}
+</style>
