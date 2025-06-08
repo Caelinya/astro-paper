@@ -1,7 +1,6 @@
 ---
 pubDatetime: 2025-05-20T00:00:00Z
 title: "爬虫学习笔记：静态爬取技术巩固 (以Hacker News为例)"
-slug: 静态爬取技术巩固-以hacker-news为例
 featured: false
 tags:
   - crawler-learning

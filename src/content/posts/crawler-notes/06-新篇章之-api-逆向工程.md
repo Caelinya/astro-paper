@@ -1,7 +1,6 @@
 ---
 pubDatetime: 2025-06-01T00:00:00Z
 title: "爬虫学习笔记：新篇章之 API 逆向工程"
-slug: 新篇章之-api-逆向工程
 featured: false
 tags:
   - crawler-learning

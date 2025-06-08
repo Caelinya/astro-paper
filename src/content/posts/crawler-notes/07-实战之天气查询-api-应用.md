@@ -1,7 +1,6 @@
 ---
 pubDatetime: 2025-06-05T00:00:00Z
 title: "爬虫学习笔记：实战之天气查询 API 应用"
-slug: 实战之天气查询-api-应用
 featured: false
 tags:
   - crawler-learning
