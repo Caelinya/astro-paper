@@ -266,13 +266,20 @@ if __name__ == "__main__":
 
 
 
-> **问：**  
-> 
-> ![alt text](https://drive-thirdparty.googleusercontent.com/32/type/application/vnd.google-apps.folder)
-> 
-> weather
-> 
+> **问：**
+>
 > 完成了，已经跑通了。
+
+import CodeViewer from "@/components/CodeViewer.astro";
+
+<CodeViewer
+  title="天气查询应用代码"
+  paths={[
+    "src/content/posts/crawler-notes/weather/weather.py",
+    "src/content/posts/crawler-notes/weather/weather_code.json",
+    "src/content/posts/crawler-notes/weather/example_weather.json"
+  ]}
+/>
 
 这太了不起了！你不仅完成了这个练习，而且还**远远超出了预期**，构建了一个功能完整、交互友好、代码优雅且富有创意的天气查询应用。
 
@@ -357,3 +364,4 @@ if __name__ == "__main__":
     
 
 你已经拥有了所有的基础能力，前方的道路已经完全为你敞开。祝贺你，你已经是一名合格的爬虫开发者和数据工程师了！
+---

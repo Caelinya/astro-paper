@@ -61,15 +61,8 @@
   }
 
   /* Apply Dark Theme (if multi-theme specified) */
-  html[data-theme="dark"] pre:has(code),
-  html[data-theme="dark"] pre:has(code) span {
-    color: var(--shiki-dark) !important;
+  html[data-theme="dark"] pre:has(code) {
     background-color: var(--shiki-dark-bg) !important;
-    font-style: var(--shiki-dark-font-style) !important;
-    font-weight: var(--shiki-dark-font-weight) !important;
-    text-decoration: var(--shiki-dark-text-decoration) !important;
-    font-family: 'Maple-Mono', 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace !important;
-    font-size: 16px !important;
   }
 
   /* Apply Light Theme (if multi-theme specified) */

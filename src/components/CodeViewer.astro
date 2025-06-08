@@ -1,0 +1,135 @@
+---
+import { readFile } from "node:fs/promises";
+import { basename, extname } from "node:path";
+import * as shiki from "shiki";
+
+export interface Props {
+  paths: string[];
+  title?: string;
+}
+
+const { paths, title } = Astro.props;
+
+// Create a highlighter instance with no specific languages pre-loaded
+const highlighter = await shiki.createHighlighter({
+  themes: ["material-theme-lighter", "tokyo-night"],
+  langs: [], // Start with no languages
+});
+
+const files = await Promise.all(
+  paths.map(async (path) => {
+    const code = await readFile(path, "utf-8");
+    const lang = extname(path).slice(1);
+    
+    // Dynamically load the language if not already loaded
+    if (!highlighter.getLoadedLanguages().includes(lang as shiki.BundledLanguage)) {
+      await highlighter.loadLanguage(lang as shiki.BundledLanguage);
+    }
+
+    const html = highlighter.codeToHtml(code, {
+      lang,
+      themes: {
+        light: "material-theme-lighter",
+        dark: "tokyo-night",
+      },
+    });
+    return {
+      name: basename(path),
+      html,
+    };
+  })
+);
+---
+
+<div class="code-viewer">
+  {title && <h4 class="viewer-title">{title}</h4>}
+  <div class="tabs">
+    {files.map((file, index) => (
+      <button class:list={["tab", { active: index === 0 }]} data-tab={index}>
+        {file.name}
+      </button>
+    ))}
+  </div>
+  <div class="content">
+    {files.map((file, index) => (
+      <div class:list={["code-content", { active: index === 0 }]} data-content={index} set:html={file.html} />
+    ))}
+  </div>
+</div>
+
+<script>
+  document.addEventListener("astro:page-load", () => {
+    const viewers = document.querySelectorAll(".code-viewer");
+
+    viewers.forEach(viewer => {
+      const tabs = viewer.querySelectorAll(".tab");
+      const contents = viewer.querySelectorAll(".code-content");
+
+      tabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+          tabs.forEach(t => t.classList.remove("active"));
+          contents.forEach(c => c.classList.remove("active"));
+
+          const tabIndex = tab.getAttribute("data-tab");
+          tab.classList.add("active");
+          viewer.querySelector(`.code-content[data-content="${tabIndex}"]`)?.classList.add("active");
+        });
+      });
+    });
+  });
+</script>
+
+<style>
+  .code-viewer {
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    background-color: var(--color-bg-secondary);
+  }
+  .viewer-title {
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid var(--color-border);
+    font-weight: 600;
+    color: var(--color-text-secondary);
+  }
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--color-border);
+    overflow-x: auto;
+  }
+  .tab {
+    padding: 0.75rem 1.25rem;
+    cursor: pointer;
+    background-color: transparent;
+    border: none;
+    color: var(--color-text-secondary);
+    font-family: inherit;
+    font-size: 0.9rem;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease-in-out;
+  }
+  .tab:hover {
+    background-color: var(--color-bg-tertiary);
+  }
+  .tab.active {
+    color: var(--color-accent);
+    border-bottom-color: var(--color-accent);
+    font-weight: 600;
+  }
+  .content {
+    position: relative;
+  }
+  .code-content {
+    display: none;
+  }
+  .code-content.active {
+    display: block;
+  }
+  :global(.code-viewer .shiki) {
+    margin: 0;
+    border-radius: 0 0 0.5rem 0.5rem;
+    padding: 1.25rem;
+    overflow-x: auto;
+  }
+</style>

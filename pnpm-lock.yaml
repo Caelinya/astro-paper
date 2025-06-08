@@ -84,6 +84,9 @@ importers:
       prettier-plugin-tailwindcss:
         specifier: ^0.6.11
         version: 0.6.12(prettier-plugin-astro@0.14.1)(prettier@3.5.3)
+      shiki:
+        specifier: ^3.6.0
+        version: 3.6.0
       typescript:
         specifier: ^5.8.2
         version: 5.8.3
