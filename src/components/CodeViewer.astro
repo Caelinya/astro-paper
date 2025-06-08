@@ -12,7 +12,7 @@ const { paths, title } = Astro.props;
 
 // Create a highlighter instance with no specific languages pre-loaded
 const highlighter = await shiki.createHighlighter({
-  themes: ["material-theme-lighter", "tokyo-night"],
+  themes: ["material-theme-lighter", "github-dark"],
   langs: [], // Start with no languages
 });
 
@@ -30,7 +30,7 @@ const files = await Promise.all(
       lang,
       themes: {
         light: "material-theme-lighter",
-        dark: "tokyo-night",
+        dark: "github-dark",
       },
     });
     return {
