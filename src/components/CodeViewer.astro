@@ -50,7 +50,7 @@ const defaultOpenFile = files[0]?.name || '';
     const codeViewer = document.querySelector('.code-viewer');
     if (!codeViewer) return;
 
-    const tabButtons = codeViewer.querySelectorAll('.tab-button');
+    const tabButtons = codeViewer.querySelectorAll<HTMLButtonElement>('.tab-button');
     const codePanels = codeViewer.querySelectorAll('.code-panel');
 
     tabButtons.forEach(button => {
@@ -80,9 +80,9 @@ const defaultOpenFile = files[0]?.name || '';
       // Keyboard navigation
       button.addEventListener('keydown', (event) => {
         const key = event.key;
-        const currentTab = event.target;
+        const currentTab = event.target as HTMLButtonElement; // event.target might be Element, ensure it's HTMLButtonElement
         const tabs = Array.from(tabButtons);
-        const currentIndex = tabs.indexOf(currentTab);
+        const currentIndex = tabs.indexOf(currentTab); // currentTab needs to be of the same type as elements in tabButtons
         let nextIndex;
 
         if (key === 'ArrowRight') {

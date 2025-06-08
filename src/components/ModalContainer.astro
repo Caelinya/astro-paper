@@ -66,7 +66,7 @@ const { title, id } = Astro.props;
       document.removeEventListener('keydown', this.handleEscKey);
     }
 
-    handleEscKey = (event) => {
+    handleEscKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         // Check if this modal's overlay is present in the DOM.
         // This is a way to infer if it's "active" from the custom element's perspective.
