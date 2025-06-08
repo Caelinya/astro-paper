@@ -18,7 +18,7 @@ const headerProps = {
 };
 ---
 
-<li class="my-6">
+<li class="card">
   <a
     href={getPath(slug)}
     class="inline-block text-lg font-medium text-accent decoration-dashed underline-offset-4 focus-visible:no-underline focus-visible:underline-offset-0"
@@ -34,3 +34,18 @@ const headerProps = {
   <Datetime {pubDatetime} {modDatetime} {timezone} />
   <p>{description}</p>
 </li>
+
+<style>
+  .card {
+    list-style: none;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    background-color: var(--color-bg-secondary);
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  }
+</style>

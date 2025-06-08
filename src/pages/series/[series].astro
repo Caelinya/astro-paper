@@ -1,0 +1,65 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content";
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import Main from "@/layouts/Main.astro";
+import Card from "@/components/Card.astro";
+import { SITE } from "@/config";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("posts");
+
+  const seriesSet = new Set<string>();
+  posts.forEach(post => {
+    if (post.slug.includes('/')) {
+      seriesSet.add(post.slug.split('/')[0]);
+    }
+  });
+
+  const paths = await Promise.all(
+    Array.from(seriesSet).map(async (seriesSlug) => {
+      let title = seriesSlug;
+      let description = "";
+      try {
+        const seriesMetaPath = join("src/content/posts", seriesSlug, "series.json");
+        const metaContent = await readFile(seriesMetaPath, "utf-8");
+        const meta = JSON.parse(metaContent);
+        title = meta.title || title;
+        description = meta.description || description;
+      } catch (e) {
+        // series.json not found, use default values
+      }
+      return {
+        params: { series: seriesSlug },
+        props: { title, description },
+      };
+    })
+  );
+
+  return paths;
+}
+
+const { series } = Astro.params;
+const { title, description } = Astro.props as { title: string; description: string; };
+
+const posts = (await getCollection("posts"))
+  .filter(post => post.slug.startsWith(`${series}/`))
+  .sort((a, b) => a.data.pubDatetime.valueOf() - b.data.pubDatetime.valueOf());
+---
+
+<Layout title={`Series: ${title} | ${SITE.title}`}>
+  <Header />
+  <Main pageTitle={title} pageDesc={description}>
+    <ul>
+      {posts.map(post => (
+        <li class="my-6">
+          <Card {...post} />
+        </li>
+      ))}
+    </ul>
+  </Main>
+  <Footer />
+</Layout>

@@ -1,0 +1,59 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import Main from "@/layouts/Main.astro";
+import { SITE } from "@/config";
+import { slugifyStr } from "@/utils/slugify";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
+
+const posts = await getCollection("posts");
+
+const seriesSet = new Set<string>();
+posts.forEach(post => {
+  if (post.slug.includes('/')) {
+    seriesSet.add(post.slug.split('/')[0]);
+  }
+});
+
+const seriesData = await Promise.all(
+  Array.from(seriesSet).map(async (seriesSlug) => {
+    let title = seriesSlug;
+    let description = "";
+    try {
+      const seriesMetaPath = join("src/content/posts", seriesSlug, "series.json");
+      const metaContent = await readFile(seriesMetaPath, "utf-8");
+      const meta = JSON.parse(metaContent);
+      title = meta.title || title;
+      description = meta.description || description;
+    } catch (e) {
+      // series.json not found, use default values
+    }
+    return { slug: seriesSlug, title, description };
+  })
+);
+---
+
+<Layout title={`Series | ${SITE.title}`}>
+  <Header />
+  <Main pageTitle="Series" pageDesc="All the series of posts.">
+    <ul class="space-y-8">
+      {seriesData.map(series => (
+        <li>
+          <a
+            href={`/series/${slugifyStr(series.slug)}`}
+            class="inline-block text-xl font-medium text-accent decoration-dashed underline-offset-4 focus-visible:no-underline focus-visible:underline-offset-0"
+          >
+            {series.title}
+          </a>
+          {series.description && (
+            <p class="mt-2 text-foreground/80">{series.description}</p>
+          )}
+        </li>
+      ))}
+    </ul>
+  </Main>
+  <Footer />
+</Layout>
