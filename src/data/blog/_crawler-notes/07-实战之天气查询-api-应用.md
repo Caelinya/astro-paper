@@ -10,7 +10,7 @@ description: "我的第一个API逆向工程项目。通过分析高德地图的
 
 > **问：**  
 > 
-> ![alt text](https://lh3.googleusercontent.com/gg/AAHar4e8oY4G1NrimCspQkr-g3hVSITox1ZCpSdP-dbuxS9kMVTEnbof8rBDwyTbtWSrnyvkgsnf5IfbxAGwzZGLiAGdKfgTD6nuyc1c7DaYehmERvEf3yzYxo3o1KmtyfWlglkEF6XRs8gxvkzMDXWwDPVBsA_dSYIS8I7vFe1B48N0mAbHeE4Frm-3AWuUgrdaRxyv3LZnB6fy3EKD6d66toibO8rIWgM2VfD9j7k-NPDkpYwPnanSEeD41w0Ct6SGHfPsqnaC1jmNaheIzkO8jjBxR4bq0QKL7Q)
+> ![Google Chrome ScreenShot](/assets/images/6.png)
 > 
 > 我现在要练习天气预报查询。
 > 
