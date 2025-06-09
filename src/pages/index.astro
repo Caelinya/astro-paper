@@ -24,9 +24,7 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
   <Header />
   <main id="main-content" data-layout="index">
     <section id="hero" class="pt-8 pb-6">
-      <h1 class="my-4 inline-block text-4xl font-bold sm:my-8 sm:text-5xl">
-        Hello
-      </h1>
+      <h1 id="typewriter" class="my-4 inline-block text-4xl font-bold sm:my-8 sm:text-5xl"></h1>
       <a
         target="_blank"
         href="/rss.xml"
@@ -107,12 +105,57 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
   <Footer />
 </Layout>
 
+<style>
+  #typewriter::after {
+    content: "|";
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink {
+    from,
+    to {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+  }
+</style>
+
 <script>
+  function typewriter() {
+    const el = document.getElementById("typewriter");
+    if (el) {
+      const text = "Hello, I'm Caelinya";
+      // Start with a non-breaking space to ensure the line height is correct before typing starts
+      el.innerHTML = `&nbsp;`;
+      let i = 0;
+
+      const type = () => {
+        if (i < text.length) {
+          if (i === 0) el.textContent = ""; // Clear the space on first char
+          el.textContent += text.charAt(i);
+          i++;
+          setTimeout(type, 100);
+        } else {
+          // Stop the blinking cursor after typing is complete by hiding the pseudo-element
+          const style = document.createElement("style");
+          style.innerHTML = `#typewriter::after { display: none; }`;
+          document.head.appendChild(style);
+        }
+      };
+
+      // A small delay to ensure the element is ready and visible before starting
+      setTimeout(type, 300);
+    }
+  }
+
   document.addEventListener("astro:page-load", () => {
     const indexLayout = (document.querySelector("#main-content") as HTMLElement)
       ?.dataset?.layout;
     if (indexLayout) {
       sessionStorage.setItem("backUrl", "/");
     }
+    typewriter();
   });
 </script>
