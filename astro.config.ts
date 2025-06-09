@@ -19,7 +19,7 @@ export default defineConfig({
     remarkPlugins: [remarkToc, [remarkCollapse, { test: "Table of contents" }]],
     shikiConfig: {
       // For more themes, visit https://shiki.style/themes
-      themes: { light: "material-theme-lighter", dark: "github-dark" },
+      themes: { light: "material-theme-lighter", dark: "tokyo-night" },
       wrap: true,
     },
   },
