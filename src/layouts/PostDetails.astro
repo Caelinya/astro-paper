@@ -10,6 +10,7 @@ import ShareLinks from "@/components/ShareLinks.astro";
 import BackButton from "@/components/BackButton.astro";
 import BackToTopButton from "@/components/BackToTopButton.astro";
 import TableOfContents from "@/components/TableOfContents.astro";
+import ProfileCard from "@/components/ProfileCard.astro";
 import { getPath } from "@/utils/getPath";
 import { slugifyStr } from "@/utils/slugify";
 import IconChevronLeft from "@/assets/icons/IconChevronLeft.svg";
@@ -85,6 +86,7 @@ const nextPost =
 <Layout {...layoutProps}>
   <Header />
   <BackButton />
+  <ProfileCard />
   <TableOfContents />
   <main
     id="main-content"
@@ -271,4 +273,80 @@ const nextPost =
   document.addEventListener("astro:after-swap", () =>
     window.scrollTo({ left: 0, top: 0, behavior: "instant" })
   );
+
+  /**
+   * Controls the dynamic positioning of the ProfileCard and TableOfContents
+   * on scroll, ensuring they behave as expected without layout shifts.
+   */
+  function handleAsideElementsPosition() {
+    const profileCard = document.getElementById("profile-card");
+    const toc = document.getElementById("table-of-contents");
+
+    if (!profileCard || !toc) return;
+
+    const startScroll = 100;
+    const endScroll = 300;
+    const gap = 16; // 1rem
+
+    const profileCardInitialTopVh = 12;
+    const tocFinalTopPercent = 50;
+
+    const listener = {
+      handle: function() {
+        const scrollY = window.scrollY;
+
+        // Use a timeout to ensure offsetHeight is correct after image load
+        setTimeout(() => {
+          // Dynamically calculate positions in pixels for accuracy
+          const profileCardHeight = profileCard.offsetHeight;
+          const profileCardTopPx = (window.innerHeight * profileCardInitialTopVh) / 100;
+          
+          // Calculate the initial top for TOC so its center aligns with the point below the profile card
+          const tocHeight = toc.offsetHeight;
+          const tocInitialTopPx = profileCardTopPx + profileCardHeight + gap + (tocHeight / 2);
+          
+          const tocFinalTopPx = window.innerHeight * (tocFinalTopPercent / 100);
+
+          if (scrollY < startScroll) {
+            // Initial state
+            profileCard.style.top = profileCardInitialTopVh + "vh";
+            profileCard.style.opacity = "1";
+            toc.style.top = tocInitialTopPx + "px";
+            return;
+          }
+
+          if (scrollY > endScroll) {
+            // Final state
+            profileCard.style.top = "-30vh";
+            profileCard.style.opacity = "0";
+            toc.style.top = tocFinalTopPercent + "%";
+            return;
+          }
+
+          // Animation in-progress
+          const progress = (scrollY - startScroll) / (endScroll - startScroll);
+
+          // Animate profile card
+          const profileTop = profileCardInitialTopVh - progress * (profileCardInitialTopVh + 30);
+          profileCard.style.top = profileTop + "vh";
+          profileCard.style.opacity = String(1 - progress);
+
+          // Animate TOC from initial Px value to final Px value
+          const tocCurrentPx = tocInitialTopPx - progress * (tocInitialTopPx - tocFinalTopPx);
+          toc.style.top = tocCurrentPx + "px";
+        }, 50); // 50ms delay to wait for image render
+      }
+    };
+
+    function init() {
+      window.removeEventListener("scroll", listener.handle);
+      window.addEventListener("scroll", listener.handle, { passive: true });
+      listener.handle(); // Set initial positions
+    }
+
+    init();
+    document.addEventListener("astro:after-swap", init);
+  }
+
+  document.addEventListener("astro:page-load", handleAsideElementsPosition);
 </script>

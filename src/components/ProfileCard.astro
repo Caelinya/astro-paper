@@ -1,0 +1,30 @@
+---
+import { Image } from "astro:assets";
+import { SITE } from "@/config";
+
+const { enabled, name, quote, avatar } = SITE.profileCard;
+---
+
+{
+  enabled && (
+    <div
+      id="profile-card"
+      class="profile-card fixed z-30 hidden max-w-[250px] flex-col items-center rounded-lg border border-border bg-background/95 p-4 text-center backdrop-blur-sm xl:flex"
+      style="right: calc((100vw - 768px) / 2 - 300px); top: 12vh; transition: top 0.3s ease-in-out; min-height: 240px;"
+    >
+      <a href="/about" class="group">
+        <Image
+          src={avatar}
+          alt={name}
+          width="144"
+          height="144"
+          class="mb-2 h-36 w-36 rounded-md transition-transform duration-300 ease-in-out group-hover:scale-105"
+        />
+        <p class="text-lg font-semibold text-accent group-hover:underline">
+          {name}
+        </p>
+      </a>
+      <p class="mt-2 text-sm italic text-foreground/80">{quote}</p>
+    </div>
+  )
+}

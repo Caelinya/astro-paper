@@ -19,6 +19,12 @@ export const SITE = {
   dynamicOgImage: true,
   lang: "en", // html lang code. Set this empty and default will be "en"
   timezone: "America/Los_Angeles", // Default global timezone (IANA format) https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+profileCard: {
+    enabled: true,
+    name: "Caelinya",
+    quote: "“The best way to predict the future is to create it.” - Peter Drucker",
+    avatar: "/assets/images/avatar.webp"
+  },
 } as const;
 
 export const SHIKI_CONFIG = {
