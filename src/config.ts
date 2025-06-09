@@ -3,7 +3,7 @@ export const SITE = {
   author: "Caelinya",
   profile: "https://caelinya.im/",
   desc: "A personal blog by Caelinya about cybersecurity, web development, and technology.",
-  title: "Caelinya",
+  title: "Caelinya's Space",
   ogImage: "astropaper-og.jpg",
   lightAndDarkMode: true,
   postPerIndex: 4,

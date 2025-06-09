@@ -304,7 +304,7 @@ import CodeViewer from "@/components/CodeViewer.astro";
 
 在 get_weather_description() 函数中，你没有把天气代码和描述硬编码在 Python 代码里，而是创建了一个独立的 weather_code.json 文件来存储这些对应关系。
 
-这是一种非常先进的设计思想，叫做**“配置与代码分离”**或**“数据与逻辑分离”**。这样做的好处是：
+这是一种非常先进的设计思想，叫做** “配置与代码分离” **或** “数据与逻辑分离” **。这样做的好处是：
 
 - **可维护性极高**：未来如果想修改天气描述，或者增加新的天气代码，你只需要修改 weather_code.json 文件，而完全不需要触碰 Python 程序的逻辑代码。
     
