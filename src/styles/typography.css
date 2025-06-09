@@ -2,7 +2,7 @@
 
 @layer base {
   .prose {
-    @apply prose-headings:!mb-3 prose-headings:!text-foreground prose-h3:italic prose-p:!text-foreground prose-a:!text-foreground prose-a:!decoration-dashed prose-a:underline-offset-8 hover:prose-a:text-accent prose-blockquote:!border-l-accent/50 prose-blockquote:opacity-80 prose-figcaption:!text-foreground prose-figcaption:opacity-70 prose-strong:!text-foreground prose-code:!text-foreground prose-code:rounded prose-code:bg-muted/75 prose-code:p-1 prose-code:before:!content-none prose-code:after:!content-none prose-ol:!text-foreground prose-ul:overflow-x-clip prose-ul:!text-foreground prose-li:marker:!text-accent prose-table:text-foreground prose-th:border prose-th:border-border prose-td:border prose-td:border-border prose-img:mx-auto prose-img:!my-2 prose-img:border-2 prose-img:border-border prose-hr:!border-border;
+    @apply prose-headings:!mb-3 prose-headings:!text-foreground prose-h3:italic prose-p:!text-foreground prose-a:!text-foreground prose-a:!decoration-dashed prose-a:underline-offset-8 hover:prose-a:text-accent prose-blockquote:!border-l-accent/50 prose-blockquote:opacity-80 prose-figcaption:!text-foreground prose-figcaption:opacity-70 prose-strong:!text-foreground prose-code:!text-foreground prose-code:rounded prose-code:bg-muted/75 prose-code:p-1 prose-code:before:!content-none prose-code:after:!content-none prose-ol:!text-foreground prose-ul:overflow-x-clip prose-ul:!text-foreground prose-li:marker:!text-accent prose-table:text-foreground prose-img:mx-auto prose-img:!my-2 prose-img:border-2 prose-img:border-border prose-hr:!border-border;
   }
   .prose a {
     @apply break-words hover:!text-accent transition-colors;
@@ -60,6 +60,46 @@
   html[data-theme='dark'] .shiki span,
   html[data-theme='dark'] .astro-code span {
     color: var(--shiki-dark) !important;
+  }
+/* ===== Modern Table Styles (Final Fix) ===== */
+  .prose table {
+    @apply rounded-lg shadow-lg overflow-hidden border-collapse;
+    border: none !important;
+  }
+  .prose th, .prose td {
+    border: none !important; /* Force remove cell borders */
+    @apply px-6 py-4;
+  }
+  .prose thead {
+    @apply bg-muted;
+    border-bottom: 1px solid var(--border) !important; /* Final fix for thead border */
+  }
+  .prose thead th {
+    @apply text-foreground font-semibold uppercase tracking-wider !text-center;
+  }
+  .prose tbody tr {
+    border-bottom: 1px solid var(--border) !important; /* Apply border to rows, not cells */
+    @apply transition-colors duration-200;
+  }
+  .prose tbody tr:last-child {
+    border-bottom: none !important;
+  }
+  .prose tbody tr:nth-child(even) {
+    @apply bg-muted/50;
+  }
+  .prose tbody tr:hover {
+    @apply bg-accent/10;
+  }
+
+  /* Dark Mode Overrides */
+  html[data-theme='dark'] .prose thead {
+    @apply bg-border;
+  }
+  html[data-theme='dark'] .prose tbody tr:nth-child(even) {
+    @apply bg-white/[.02];
+  }
+  html[data-theme='dark'] .prose tbody tr:hover {
+    @apply bg-accent/20;
   }
 }
 
