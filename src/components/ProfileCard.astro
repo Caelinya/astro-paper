@@ -9,7 +9,7 @@ const { enabled, name, quote, avatar } = SITE.profileCard;
   enabled && (
     <div
       id="profile-card"
-      class="profile-card fixed z-30 hidden max-w-[250px] flex-col items-center rounded-lg border border-border bg-background/95 p-4 text-center backdrop-blur-sm xl:flex"
+      class="profile-card fixed z-30 hidden max-w-[250px] flex-col items-center rounded-lg bg-background/95 p-4 text-center backdrop-blur-sm shadow-lg transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl dark:shadow-black/50 xl:flex"
       style="right: calc((100vw - 768px) / 2 - 300px); top: 12vh; transition: top 0.3s ease-in-out; min-height: 240px;"
     >
       <a href="/about" class="group">

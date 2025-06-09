@@ -4,7 +4,7 @@
 
 <div
   id="table-of-contents"
-  class="hidden xl:block fixed z-30 max-w-[250px] max-h-[60vh] bg-background/95 backdrop-blur-sm border border-border rounded-lg overflow-hidden"
+  class="hidden xl:block fixed z-30 max-w-[250px] max-h-[60vh] bg-background/95 backdrop-blur-sm rounded-lg overflow-hidden shadow-lg transition-all duration-300 ease-in-out dark:shadow-black/50"
   style="right: calc((100vw - 768px) / 2 - 300px); transform: translateY(-50%);"
 >
   <div class="relative">
@@ -13,8 +13,9 @@
     
     <!-- TOC Content -->
     <div id="toc-content" class="p-4 overflow-y-auto max-h-[60vh] scrollbar-hide">
-      <h3 class="text-sm font-semibold text-foreground mb-3 opacity-75">Contents</h3>
+      <h3 class="text-base font-semibold text-foreground mb-4">Contents</h3>
       <nav id="toc-nav" class="space-y-1">
+        <div id="toc-indicator" class="absolute left-0 w-1 h-6 bg-accent rounded-full transition-all duration-300 ease-in-out"></div>
         <!-- TOC items will be dynamically inserted here -->
       </nav>
     </div>
@@ -36,8 +37,9 @@
     const tocContainer = document.querySelector("#table-of-contents") as HTMLElement;
     const tocNav = document.querySelector("#toc-nav") as HTMLElement;
     const tocContent = document.querySelector("#toc-content") as HTMLElement;
+    const tocIndicator = document.querySelector("#toc-indicator") as HTMLElement;
     
-    if (!tocContainer || !tocNav || !tocContent) return;
+    if (!tocContainer || !tocNav || !tocContent || !tocIndicator) return;
 
     // Extract headings from the article content
     function extractHeadings(): HeadingData[] {
@@ -160,18 +162,21 @@
 
       // Update active state if changed
       if (newActiveId !== currentActiveId) {
-        // Remove previous active state
-        const prevActive = tocNav.querySelector('.toc-link.text-accent.font-medium');
-        if (prevActive) {
-          prevActive.classList.remove('text-accent', 'font-medium');
-          prevActive.classList.add('text-foreground/80');
-        }
+        // Update active link styles
+        tocNav.querySelectorAll('.toc-link').forEach(link => {
+          link.classList.remove('text-accent', 'font-medium');
+          link.classList.add('text-foreground/80');
+        });
 
-        // Add new active state
-        const newActive = tocNav.querySelector(`[data-heading-id="${newActiveId}"]`);
-        if (newActive) {
-          newActive.classList.remove('text-foreground/80');
-          newActive.classList.add('text-accent', 'font-medium');
+        const newActiveLink = tocNav.querySelector(`[data-heading-id="${newActiveId}"]`);
+        if (newActiveLink) {
+          newActiveLink.classList.remove('text-foreground/80');
+          newActiveLink.classList.add('text-accent', 'font-medium');
+
+          // Move the indicator
+          const linkRect = newActiveLink.getBoundingClientRect();
+          const navRect = tocNav.getBoundingClientRect();
+          tocIndicator.style.top = `${linkRect.top - navRect.top + linkRect.height / 2 - tocIndicator.offsetHeight / 2}px`;
         }
 
         currentActiveId = newActiveId;

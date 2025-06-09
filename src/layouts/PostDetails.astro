@@ -284,57 +284,42 @@ const nextPost =
 
     if (!profileCard || !toc) return;
 
-    const startScroll = 100;
-    const endScroll = 300;
-    const gap = 16; // 1rem
+    // Use will-change to hint to the browser about upcoming transformations
+    profileCard.style.willChange = "transform, opacity";
+    toc.style.willChange = "transform";
 
-    const profileCardInitialTopVh = 12;
-    const tocFinalTopPercent = 50;
+    const parallaxFactor = 0.33; // Profile card scrolls at 1/3 of the speed
 
     const listener = {
       handle: function() {
         const scrollY = window.scrollY;
 
-        // Use a timeout to ensure offsetHeight is correct after image load
-        setTimeout(() => {
-          // Dynamically calculate positions in pixels for accuracy
-          const profileCardHeight = profileCard.offsetHeight;
-          const profileCardTopPx = (window.innerHeight * profileCardInitialTopVh) / 100;
-          
-          // Calculate the initial top for TOC so its center aligns with the point below the profile card
-          const tocHeight = toc.offsetHeight;
-          const tocInitialTopPx = profileCardTopPx + profileCardHeight + gap + (tocHeight / 2);
-          
-          const tocFinalTopPx = window.innerHeight * (tocFinalTopPercent / 100);
+        // Parallax effect for Profile Card
+        const profileTranslateY = -scrollY * parallaxFactor;
+        profileCard.style.transform = `translateY(${profileTranslateY}px)`;
 
-          if (scrollY < startScroll) {
-            // Initial state
-            profileCard.style.top = profileCardInitialTopVh + "vh";
-            profileCard.style.opacity = "1";
-            toc.style.top = tocInitialTopPx + "px";
-            return;
-          }
+        // Fade out Profile Card based on scroll position
+        const opacity = Math.max(0, 1 - scrollY / 300);
+        profileCard.style.opacity = String(opacity);
 
-          if (scrollY > endScroll) {
-            // Final state
-            profileCard.style.top = "-30vh";
-            profileCard.style.opacity = "0";
-            toc.style.top = tocFinalTopPercent + "%";
-            return;
-          }
+        // TOC animation
+        const tocStartScroll = 100;
+        const tocEndScroll = 400;
+        const tocInitialTopVh = 85;
+        const tocFinalTopPercent = 50;
 
-          // Animation in-progress
-          const progress = (scrollY - startScroll) / (endScroll - startScroll);
+        let tocTopStyle;
 
-          // Animate profile card
-          const profileTop = profileCardInitialTopVh - progress * (profileCardInitialTopVh + 30);
-          profileCard.style.top = profileTop + "vh";
-          profileCard.style.opacity = String(1 - progress);
-
-          // Animate TOC from initial Px value to final Px value
-          const tocCurrentPx = tocInitialTopPx - progress * (tocInitialTopPx - tocFinalTopPx);
-          toc.style.top = tocCurrentPx + "px";
-        }, 50); // 50ms delay to wait for image render
+        if (scrollY < tocStartScroll) {
+          tocTopStyle = tocInitialTopVh + "vh";
+        } else if (scrollY > tocEndScroll) {
+          tocTopStyle = tocFinalTopPercent + "%";
+        } else {
+          const progress = (scrollY - tocStartScroll) / (tocEndScroll - tocStartScroll);
+          const tocCurrentVh = tocInitialTopVh - progress * (tocInitialTopVh - tocFinalTopPercent);
+          tocTopStyle = tocCurrentVh + "vh";
+        }
+        toc.style.top = tocTopStyle;
       }
     };
 
