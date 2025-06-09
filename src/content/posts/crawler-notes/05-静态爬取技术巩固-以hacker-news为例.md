@@ -1221,8 +1221,8 @@ for tag in possible_comment_tags:
 
 
 > **问：**
-> ![Google Chrome ScreenShot](/assets/images/3.png)
-> ![Google Chrome ScreenShot](/assets/images/4.png)
+> ![Google Chrome ScreenShot](/assets/images/3.webp)
+> ![Google Chrome ScreenShot](/assets/images/4.webp)
 >
 > ```json
 > [
@@ -1700,7 +1700,7 @@ if __name__ == "__main__":
 
 
 > **问：**
-> ![Google Chrome ScreenShot](/assets/images/5.png)
+> ![Google Chrome ScreenShot](/assets/images/5.webp)
 >
 > `indent` 是有的，我已经跑通了，如图所示。
 >
