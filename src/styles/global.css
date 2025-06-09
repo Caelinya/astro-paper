@@ -63,3 +63,36 @@ html[data-theme="dark"] {
 :target {
   scroll-margin-block: 6rem;
 }
+
+/* Scroll-Driven Animations for Profile Card and TOC */
+@keyframes fade-out-and-parallax {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-100px); /* Parallax: moves 100px up as we scroll 300px */
+  }
+}
+
+@keyframes move-up {
+  from {
+    top: 85vh;
+  }
+  to {
+    top: 50%;
+  }
+}
+
+#profile-card {
+  animation: fade-out-and-parallax linear forwards;
+  animation-timeline: scroll(root);
+  animation-range: 0 300px; /* Animation occurs between 0 and 300px of scroll */
+}
+
+#table-of-contents {
+  animation: move-up linear forwards;
+  animation-timeline: scroll(root);
+  animation-range: 0px 300px; /* Animation occurs between 100px and 400px of scroll */
+}
