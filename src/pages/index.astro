@@ -105,10 +105,15 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
   <Footer />
 </Layout>
 
-<style>
+<style is:global>
   #typewriter::after {
     content: "|";
     animation: blink 1s step-end infinite;
+  }
+
+  #typewriter.typing-done::after {
+    content: "";
+    animation: none;
   }
 
   @keyframes blink {
@@ -125,35 +130,29 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
 <script>
   function typewriter() {
     const el = document.getElementById("typewriter");
-    if (el) {
+    if (el && !el.classList.contains("typing-done")) {
       const text = "Hello, I'm Caelinya";
-      // Start with a non-breaking space to ensure the line height is correct before typing starts
-      el.innerHTML = `&nbsp;`;
+      el.innerHTML = `&nbsp;`; // Start with a non-breaking space for layout
       let i = 0;
 
       const type = () => {
         if (i < text.length) {
-          if (i === 0) el.textContent = ""; // Clear the space on first char
+          if (i === 0) el.textContent = ""; // Clear the space
           el.textContent += text.charAt(i);
           i++;
           setTimeout(type, 100);
         } else {
-          // Stop the blinking cursor after typing is complete by hiding the pseudo-element
-          const style = document.createElement("style");
-          style.innerHTML = `#typewriter::after { display: none; }`;
-          document.head.appendChild(style);
+          el.classList.add("typing-done");
         }
       };
 
-      // A small delay to ensure the element is ready and visible before starting
       setTimeout(type, 300);
     }
   }
 
   document.addEventListener("astro:page-load", () => {
-    const indexLayout = (document.querySelector("#main-content") as HTMLElement)
-      ?.dataset?.layout;
-    if (indexLayout) {
+    const indexLayout = document.querySelector("#main-content") as HTMLElement | null;
+    if (indexLayout?.dataset?.layout) {
       sessionStorage.setItem("backUrl", "/");
     }
     typewriter();
