@@ -46,9 +46,6 @@
     @apply break-all sm:break-normal;
   }
 
-  pre > code {
-    white-space: pre;
-  }
 
   /*
     The following CSS is for Shiki's dual-theme setup.
@@ -76,4 +73,6 @@
 .astro-code {
   font-family: 'Maple-Mono', 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace;
   font-size: 16px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }

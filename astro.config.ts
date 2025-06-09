@@ -4,7 +4,7 @@ import sitemap from "@astrojs/sitemap";
 import mdx from "@astrojs/mdx";
 import remarkToc from "remark-toc";
 import remarkCollapse from "remark-collapse";
-import { SITE } from "./src/config";
+import { SITE, SHIKI_CONFIG } from "./src/config";
 
 // https://astro.build/config
 export default defineConfig({
